@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Scotch Broom Clump Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<style>
+  html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+  #map { height: 100%; width: 100%; }
+
+  #title-bar {
+    position: absolute; top: 10px; left: 50px; z-index: 1000;
+    background: white; padding: 8px 16px; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25); font-size: 15px; font-weight: 600;
+    color: #333;
+  }
+
+  #legend {
+    position: absolute; bottom: 24px; left: 10px; z-index: 1000;
+    background: white; padding: 12px 14px; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25); font-size: 13px; color: #333;
+    line-height: 1.5;
+  }
+  #legend h4 { margin: 0 0 8px 0; font-size: 13px; }
+  .legend-row { display: flex; align-items: center; margin-bottom: 4px; }
+  .legend-dot {
+    display: inline-block; border-radius: 50%;
+    background: #d9534f; opacity: 0.55; border: 1.5px solid #a83232;
+    margin-right: 8px; flex-shrink: 0;
+  }
+  .legend-note { font-size: 11px; color: #777; margin-top: 6px; max-width: 180px; }
+
+  .popup-label { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .popup-count { font-size: 13px; color: #a83232; margin-bottom: 4px; }
+  .popup-notes { font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+
+<div id="title-bar">Scotch Broom — Existing Clumps</div>
+<div id="map"></div>
+
+<div id="legend">
+  <h4>Clump size</h4>
+  <div class="legend-row"><span class="legend-dot" style="width:10px; height:10px;"></span> ~5 plants</div>
+  <div class="legend-row"><span class="legend-dot" style="width:20px; height:20px;"></span> ~40 plants</div>
+  <div class="legend-row"><span class="legend-dot" style="width:32px; height:32px;"></span> ~150 plants</div>
+  <div class="legend-note">Circle size reflects plant count (area scales with count). Click a circle for details.</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const BASE_RADIUS = 4;
+const SCALE_MULT = 3;
+
+// Center the map on the average of all clump points
+const avgLat = CLUMPS.reduce((s, c) => s + c.lat, 0) / CLUMPS.length;
+const avgLon = CLUMPS.reduce((s, c) => s + c.lon, 0) / CLUMPS.length;
+
+const map = L.map('map').setView([avgLat, avgLon], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 20,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+function radiusFor(count) {
+  return BASE_RADIUS + SCALE_MULT * Math.sqrt(count);
+}
+
+const bounds = [];
+CLUMPS.forEach(c => {
+  const r = radiusFor(c.count);
+  const circle = L.circleMarker([c.lat, c.lon], {
+    radius: r,
+    color: '#a83232',
+    weight: 1.5,
+    fillColor: '#d9534f',
+    fillOpacity: 0.55
+  });
+  const notesHtml = c.notes ? `<div class="popup-notes">${c.notes}</div>` : '';
+  circle.bindPopup(
+    `<div class="popup-label">${c.label}</div>` +
+    `<div class="popup-count">~${c.count} plants</div>` +
+    notesHtml
+  );
+  circle.addTo(map);
+  bounds.push([c.lat, c.lon]);
+});
+
+// Fit view to show all clumps with some padding, but don't zoom in past a reasonable level
+if (bounds.length > 1) {
+  map.fitBounds(bounds, { padding: [60, 60], maxZoom: 18 });
+}
+</script>
+
+</body>
+</html>
