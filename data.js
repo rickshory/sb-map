@@ -8,6 +8,8 @@
 //   notes     — optional freeform text (access notes, landowner, etc.)
 
 const CLUMPS = [
+
+  /* oaks bottom data */
   { lat: 45.4787493, lon: -122.6562177, count: 15, label: "S", notes: "trail", agencies: ["oaks-bottom"] },
   { lat: 45.4786063, lon: -122.656313, count: 8, label: "R", notes: "trail", agencies: ["oaks-bottom"] },
   { lat: 45.4786404246771, lon: -122.656424365985, count: 1, label: "Q", notes: "trail", agencies: ["oaks-bottom"] },
