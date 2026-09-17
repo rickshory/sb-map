@@ -16,6 +16,9 @@
     box-shadow: 0 1px 6px rgba(0,0,0,0.25); font-size: 15px; font-weight: 600;
     color: #333;
   }
+  #title-bar .caption {
+    font-size: 12px; font-weight: 400; color: #777; margin-top: 2px;
+  }
 
   #legend {
     position: absolute; bottom: 24px; left: 10px; z-index: 1000;
@@ -30,7 +33,10 @@
     background: #d9534f; opacity: 0.55; border: 1.5px solid #a83232;
     margin-right: 8px; flex-shrink: 0;
   }
-  .legend-note { font-size: 11px; color: #777; margin-top: 6px; max-width: 180px; }
+  .legend-dot.dim {
+    background: #bbbbbb; opacity: 0.4; border: 1.5px solid #999999;
+  }
+  .legend-note { font-size: 11px; color: #777; margin-top: 6px; max-width: 190px; }
 
   .popup-label { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
   .popup-count { font-size: 13px; color: #a83232; margin-bottom: 4px; }
@@ -39,7 +45,10 @@
 </head>
 <body>
 
-<div id="title-bar">Scotch Broom — Existing Clumps</div>
+<div id="title-bar">
+  Scotch Broom — Existing Clumps
+  <div class="caption" id="caption"></div>
+</div>
 <div id="map"></div>
 
 <div id="legend">
@@ -47,7 +56,7 @@
   <div class="legend-row"><span class="legend-dot" style="width:10px; height:10px;"></span> ~5 plants</div>
   <div class="legend-row"><span class="legend-dot" style="width:20px; height:20px;"></span> ~40 plants</div>
   <div class="legend-row"><span class="legend-dot" style="width:32px; height:32px;"></span> ~150 plants</div>
-  <div class="legend-note">Circle size reflects plant count (area scales with count). Click a circle for details.</div>
+  <div class="legend-note" id="legend-note">Circle size reflects plant count (area scales with count). Click a circle for details.</div>
 </div>
 
 <script src="data.js"></script>
@@ -55,7 +64,16 @@
 const BASE_RADIUS = 4;
 const SCALE_MULT = 3;
 
-// Center the map on the average of all clump points
+// ---- Read ?agency=xxx from the URL, if present ----
+const params = new URLSearchParams(window.location.search);
+const agencyFilter = params.get('agency');
+
+function isRelevant(clump) {
+  if (!agencyFilter) return true;
+  return Array.isArray(clump.agencies) && clump.agencies.includes(agencyFilter);
+}
+
+// Center map on the average of all clump points (full dataset, before framing)
 const avgLat = CLUMPS.reduce((s, c) => s + c.lat, 0) / CLUMPS.length;
 const avgLon = CLUMPS.reduce((s, c) => s + c.lon, 0) / CLUMPS.length;
 
@@ -69,15 +87,16 @@ function radiusFor(count) {
   return BASE_RADIUS + SCALE_MULT * Math.sqrt(count);
 }
 
-const bounds = [];
+// ---- Draw every clump, always. Relevant ones are highlighted; others dimmed. ----
 CLUMPS.forEach(c => {
+  const relevant = isRelevant(c);
   const r = radiusFor(c.count);
   const circle = L.circleMarker([c.lat, c.lon], {
     radius: r,
-    color: '#a83232',
+    color: relevant ? '#a83232' : '#999999',
     weight: 1.5,
-    fillColor: '#d9534f',
-    fillOpacity: 0.55
+    fillColor: relevant ? '#d9534f' : '#bbbbbb',
+    fillOpacity: relevant ? 0.55 : 0.25
   });
   const notesHtml = c.notes ? `<div class="popup-notes">${c.notes}</div>` : '';
   circle.bindPopup(
@@ -86,12 +105,26 @@ CLUMPS.forEach(c => {
     notesHtml
   );
   circle.addTo(map);
-  bounds.push([c.lat, c.lon]);
 });
 
-// Fit view to show all clumps with some padding, but don't zoom in past a reasonable level
+// ---- Frame the view: zoom to the relevant subset if filtered, else fit everything ----
+const relevantClumps = agencyFilter ? CLUMPS.filter(isRelevant) : CLUMPS;
+const bounds = relevantClumps.map(c => [c.lat, c.lon]);
+
 if (bounds.length > 1) {
   map.fitBounds(bounds, { padding: [60, 60], maxZoom: 18 });
+} else if (bounds.length === 1) {
+  map.setView(bounds[0], 17);
+}
+
+// ---- Caption + legend note, only shown when a filter is active ----
+if (agencyFilter) {
+  document.getElementById('caption').textContent =
+    `Highlighted: ${agencyFilter} sites — full dataset shown`;
+  document.getElementById('legend-note').innerHTML =
+    'Circle size reflects plant count. Highlighted (red) circles are relevant to this view; ' +
+    'gray circles are other tracked sites, shown for context.' +
+    '<div class="legend-row" style="margin-top:8px;"><span class="legend-dot dim" style="width:14px; height:14px;"></span> Other tracked sites</div>';
 }
 </script>
 
