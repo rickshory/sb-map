@@ -39,6 +39,16 @@ const CLUMPS = [
   { lat: 45.5617585, lon: -122.5669575, count: 4, label: "B", notes: "roadside", agencies: ["odot-91st"] },
   { lat: 45.561987, lon: -122.5675211, count: 12, label: "A", notes: "roadside", agencies: ["odot-91st"] },
 
+/* data for area accessible from N end of 87th Ave */
+  { lat: 45.5625439, lon: -122.5752425, count: 2, label: "I", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625483135679, lon: -122.5742291, count: 1, label: "H", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625191135679, lon: -122.5741182, count: 5, label: "G", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625483135679, lon: -122.5741046, count: 11, label: "F", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625727135679, lon: -122.5739393, count: 15, label: "E", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625526135679, lon: -122.5738857, count: 25, label: "D", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625520135679, lon: -122.5738643, count: 25, label: "C", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625387203518, lon: -122.5736601, count: 20, label: "B", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
+  { lat: 45.5625415203518, lon: -122.5736428, count: 17, label: "A", notes: "N of fence, up from sidewalk", agencies: ["odot-87th"] },
 
 
 ];
