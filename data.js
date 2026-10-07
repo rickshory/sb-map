@@ -30,5 +30,15 @@ const CLUMPS = [
   { lat: 45.4906743791049, lon: -122.655639523282, count: 15, label: "B", notes: "high bank, beyond fence", agencies: [] },
   { lat: 45.4950699998384, lon: -122.659149255075, count: 4, label: "A", notes: "quarry, beyond fence", agencies: [] },
 
+  /* data for area, N end of 91st Ave */
+  { lat: 45.5616414, lon: -122.5673359, count: 1, label: "G", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.5614621, lon: -122.566039, count: 1, label: "F", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.5614643, lon: -122.5661208, count: 1, label: "E", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.5616052, lon: -122.5665266, count: 4, label: "D", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.5616639, lon: -122.5667411, count: 8, label: "C", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.5617585, lon: -122.5669575, count: 4, label: "B", notes: "roadside", agencies: ["odot-91st"] },
+  { lat: 45.561987, lon: -122.5675211, count: 12, label: "A", notes: "roadside", agencies: ["odot-91st"] },
+
+
 
 ];
