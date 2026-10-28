@@ -53,16 +53,19 @@
 
 <div id="legend">
   <h4>Clump size</h4>
-  <div class="legend-row"><span class="legend-dot" style="width:10px; height:10px;"></span> ~5 plants</div>
-  <div class="legend-row"><span class="legend-dot" style="width:20px; height:20px;"></span> ~40 plants</div>
-  <div class="legend-row"><span class="legend-dot" style="width:32px; height:32px;"></span> ~150 plants</div>
-  <div class="legend-note" id="legend-note">Circle size reflects plant count (area scales with count). Click a circle for details.</div>
+  <div id="legend-rows"></div>
+  <div class="legend-note" id="legend-note">Circle area is proportional to plant count. Click a circle for details.</div>
 </div>
 
 <script src="data.js"></script>
 <script>
-const BASE_RADIUS = 4;
-const SCALE_MULT = 3;
+// Marker radius (px) = SCALE_MULT * sqrt(count), never smaller than MIN_RADIUS.
+// Pure square-root scaling means circle AREA is proportional to plant count.
+const SCALE_MULT = 3.5;
+const MIN_RADIUS = 3;
+
+// Plant counts shown in the legend (edit to taste)
+const LEGEND_COUNTS = [1, 5, 10, 20, 40];
 
 // ---- Read ?agency=xxx from the URL, if present ----
 const params = new URLSearchParams(window.location.search);
@@ -84,8 +87,22 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 function radiusFor(count) {
-  return BASE_RADIUS + SCALE_MULT * Math.sqrt(count);
+  return Math.max(MIN_RADIUS, SCALE_MULT * Math.sqrt(count));
 }
+
+// ---- Build the legend from radiusFor(), so it always matches the map circles ----
+(function buildLegend() {
+  const container = document.getElementById('legend-rows');
+  LEGEND_COUNTS.forEach(n => {
+    const diameter = 2 * radiusFor(n) + 1.5;   // +1.5 for the marker's outline
+    const row = document.createElement('div');
+    row.className = 'legend-row';
+    row.innerHTML =
+      `<span class="legend-dot" style="width:${diameter}px; height:${diameter}px; box-sizing:border-box;"></span>` +
+      `${n} ${n === 1 ? 'plant' : 'plants'}`;
+    container.appendChild(row);
+  });
+})();
 
 // ---- Draw every clump, always. Relevant ones are highlighted; others dimmed. ----
 CLUMPS.forEach(c => {
